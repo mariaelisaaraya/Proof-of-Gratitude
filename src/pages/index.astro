@@ -44,6 +44,22 @@ const dataPayload = JSON.stringify({
     name="description"
     content="Un archivo vivo de la historia de Stellar y de las personas que la fueron construyendo, semana a semana."
   />
+  <link rel="icon" type="image/png" href="${base}icons/stellar-mark.png" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Proof of Gratitude" />
+  <meta
+    property="og:description"
+    content="Un archivo vivo de la historia de Stellar y de las personas que la fueron construyendo, semana a semana."
+  />
+  <meta property="og:url" content="https://mariaelisaaraya.github.io/Proof-of-Gratitude/" />
+  <meta property="og:image" content="https://mariaelisaaraya.github.io/Proof-of-Gratitude/icons/stellar-mark.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Proof of Gratitude" />
+  <meta
+    name="twitter:description"
+    content="Un archivo vivo de la historia de Stellar y de las personas que la fueron construyendo, semana a semana."
+  />
+  <meta name="twitter:image" content="https://mariaelisaaraya.github.io/Proof-of-Gratitude/icons/stellar-mark.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -902,6 +918,14 @@ const dataPayload = JSON.stringify({
           <span class="counter-number" id="counterNumber">0</span>
           <span class="counter-label" id="counterLabel">personas dejaron su firma</span>
         </div>
+        <div class="counter-block">
+          <span class="counter-number" id="counterHitos">0</span>
+          <span class="counter-label" id="counterHitosLabel">hitos de Stellar</span>
+        </div>
+        <div class="counter-block">
+          <span class="counter-number" id="counterSemanas">0</span>
+          <span class="counter-label" id="counterSemanasLabel">semanas con historias</span>
+        </div>
         <a class="cta-button" href={`${base}firmar/`}>
           Sumá tu agradecimiento
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
@@ -1072,23 +1096,39 @@ const dataPayload = JSON.stringify({
       });
 
       /* ---------- Contador animado ---------- */
-      var total = DATA.community.length;
-      var counterEl = document.getElementById('counterNumber');
-      var counterLabelEl = document.getElementById('counterLabel');
-      counterLabelEl.textContent = total === 1 ? 'persona dejó su firma' : 'personas dejaron su firma';
-      if (reduceMotion || total === 0) {
-        counterEl.textContent = String(total);
-      } else {
+      function animateCounter(el, total) {
+        if (!el) return;
+        if (reduceMotion || total === 0) {
+          el.textContent = String(total);
+          return;
+        }
         var start = null;
         var durationMs = 900;
         function tickCounter(ts) {
           if (!start) start = ts;
           var progress = Math.min(1, (ts - start) / durationMs);
-          counterEl.textContent = String(Math.round(progress * total));
+          el.textContent = String(Math.round(progress * total));
           if (progress < 1) requestAnimationFrame(tickCounter);
         }
         requestAnimationFrame(tickCounter);
       }
+
+      var total = DATA.community.length;
+      var counterLabelEl = document.getElementById('counterLabel');
+      counterLabelEl.textContent = total === 1 ? 'persona dejó su firma' : 'personas dejaron su firma';
+      animateCounter(document.getElementById('counterNumber'), total);
+
+      var hitosTotal = DATA.hitos.length;
+      var hitosLabelEl = document.getElementById('counterHitosLabel');
+      if (hitosLabelEl) hitosLabelEl.textContent = hitosTotal === 1 ? 'hito de Stellar' : 'hitos de Stellar';
+      animateCounter(document.getElementById('counterHitos'), hitosTotal);
+
+      var semanasTotal = Object.keys(byWeek).filter(function (ts) {
+        return byWeek[ts].entries.length > 0;
+      }).length;
+      var semanasLabelEl = document.getElementById('counterSemanasLabel');
+      if (semanasLabelEl) semanasLabelEl.textContent = semanasTotal === 1 ? 'semana con historias' : 'semanas con historias';
+      animateCounter(document.getElementById('counterSemanas'), semanasTotal);
 
       /* ---------- Encabezado de meses ---------- */
       function buildMonthRow(refYear) {
