@@ -1,0 +1,11 @@
+{
+  "nombre": "Tu nombre",
+  "conoci_stellar": "2022-05-01",
+  "github": "tu-usuario-de-github",
+  "agradece_a": "a la persona o comunidad a la que querés agradecer",
+  "por_que": "Por qué se lo agradecés. Contá la historia con tus palabras.",
+  "proximo_paso": "Qué es lo próximo que querés hacer en el ecosistema de Stellar.",
+  "tu_proyecto": "Contá sobre el proyecto en el que estás trabajando (opcional, si no querés agradecer a nadie).",
+  "commits_hoy": "https://github.com/tu-usuario/tu-proyecto/commits?author=tu-usuario",
+  "redes": "https://x.com/tu-usuario"
+}
