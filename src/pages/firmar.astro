@@ -10,7 +10,7 @@ const REPO = 'mariaelisaaraya/Proof-of-Gratitude';
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dejá tu firma · Proof of Gratitude</title>
   <meta name="description" content="Completá tu historia y generá tu archivo para Proof of Gratitude, sin saber de GitHub." />
-  <link rel="icon" type="image/png" href="${base}icons/stellar-mark.png" />
+  <link rel="icon" type="image/png" href={`${base}icons/stellar-mark.png`} />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Dejá tu firma · Proof of Gratitude" />
   <meta property="og:description" content="Completá tu historia y generá tu archivo para Proof of Gratitude, sin saber de GitHub." />
@@ -112,12 +112,12 @@ const REPO = 'mariaelisaaraya/Proof-of-Gratitude';
     label { font-weight: 600; font-size: 0.95rem; }
     label .req { color: var(--accent); }
     .hint { font-size: 0.85rem; color: var(--ink-muted); margin: 0; }
-    input, textarea {
+    input, select, textarea {
       font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line);
       border-radius: 12px; padding: 0.75rem 0.9rem; width: 100%;
     }
     textarea { resize: vertical; min-height: 5.5rem; line-height: 1.5; }
-    input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     .prefix { display: flex; align-items: stretch; }
     .prefix span { font-family: var(--font-mono); font-size: 0.85rem; color: var(--ink-muted); display: flex; align-items: center; padding: 0 0.75rem; border: 1px solid var(--line); border-right: 0; border-radius: 12px 0 0 12px; background: var(--surface-2); }
     .prefix input { border-radius: 0 12px 12px 0; }
@@ -125,6 +125,7 @@ const REPO = 'mariaelisaaraya/Proof-of-Gratitude';
     .error:empty { display: none; }
     .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     @media (max-width: 520px) { .row2 { grid-template-columns: 1fr; } }
+    .date-fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 0.6rem; }
 
     aside { position: sticky; top: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
     @media (max-width: 860px) { aside { position: static; } }
@@ -133,6 +134,7 @@ const REPO = 'mariaelisaaraya/Proof-of-Gratitude';
     .filename { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-muted); word-break: break-all; margin: 0; }
     pre { margin: 0; font-family: var(--font-mono); font-size: 0.78rem; line-height: 1.6; background: var(--surface-2); border-radius: 12px; padding: 0.9rem 1rem; overflow-x: auto; white-space: pre; }
     .status { font-size: 0.9rem; margin: 0; }
+    .status:empty { display: none; }
     .status.ok { color: var(--ok); }
     .status.bad { color: var(--accent); }
     .actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
@@ -141,7 +143,7 @@ const REPO = 'mariaelisaaraya/Proof-of-Gratitude';
     .btn.primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px var(--accent-glow); }
     .btn.ghost { border: 1px solid var(--line); color: var(--ink); }
     .btn.ghost:hover { background: var(--surface-2); }
-    .btn[aria-disabled='true'] { opacity: 0.45; pointer-events: none; }
+    .btn[aria-disabled='true'], .btn:disabled { opacity: 0.45; cursor: default; }
     .btn svg { width: 16px; height: 16px; }
     ol.next { margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.92rem; color: var(--ink-muted); }
     ol.next strong { color: var(--ink); }
@@ -172,11 +174,18 @@ const REPO = 'mariaelisaaraya/Proof-of-Gratitude';
             <div class="prefix"><span>github.com/</span><input id="github" name="github" autocomplete="username" placeholder="tu-usuario" spellcheck="false" autocapitalize="off" /></div>
             <p class="error" data-for="github"></p>
           </div>
-          <div class="field">
-            <label for="conoci">¿Cuándo conociste Stellar? <span class="req">*</span></label>
-            <input id="conoci" name="conoci" type="month" min="2014-07" />
-            <p class="hint">Vale aproximado: el mes alcanza. Decide en qué semana aparece tu punto.</p>
-            <p class="error" data-for="conoci"></p>
+          <div class="field" role="group" aria-labelledby="conoci-label" aria-describedby="conoci-hint conoci-error">
+            <label id="conoci-label" for="conoci-anio">¿Cuándo conociste Stellar? <span class="req">*</span></label>
+            <div class="date-fields">
+              <select id="conoci-anio" name="conoci-anio" aria-label="Año" required>
+                <option value="">Año</option>
+              </select>
+              <select id="conoci-mes" name="conoci-mes" aria-label="Mes" required disabled>
+                <option value="">Mes</option>
+              </select>
+            </div>
+            <p class="hint" id="conoci-hint">Vale aproximado: el mes alcanza. Decide en qué semana aparece tu punto.</p>
+            <p class="error" id="conoci-error" data-for="conoci"></p>
           </div>
         </div>
       </fieldset>
@@ -222,7 +231,8 @@ const REPO = 'mariaelisaaraya/Proof-of-Gratitude';
     <aside aria-live="polite">
       <div class="card">
         <h2>Tu archivo</h2>
-        <p class="filename" id="filename">src/content/community/tu-usuario.json</p>
+        <p class="filename"><code id="filename">tu-usuario.json</code></p>
+        <p class="hint">Si GitHub te pide el nombre del archivo, pegá este; tiene que terminar en .json</p>
         <pre id="preview"></pre>
         <p class="status" id="status"></p>
         <div class="actions">
@@ -230,13 +240,16 @@ const REPO = 'mariaelisaaraya/Proof-of-Gratitude';
             Abrir en GitHub
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
           </a>
-          <button class="btn ghost" id="copy" type="button">Copiar JSON</button>
+          <button class="btn ghost" id="copy-name" type="button">Copiar nombre</button>
+          <button class="btn ghost" id="copy" type="button" disabled>Copiar JSON</button>
         </div>
+        <p class="status" id="clipboard-status"></p>
       </div>
       <div class="card">
         <h2>Y después</h2>
         <ol class="next">
-          <li><strong>Abrir en GitHub</strong> crea tu archivo ya completo. Si te pide, iniciá sesión.</li>
+          <li>Si GitHub te pide el nombre del archivo, pegá este; tiene que terminar en .json</li>
+          <li>Tocá <strong>Abrir en GitHub</strong>. Si te pide, iniciá sesión.</li>
           <li>Bajá y tocá <strong>Commit changes…</strong>, después <strong>Propose changes</strong>. GitHub hace tu copia (fork) sola.</li>
           <li>Tocá <strong>Create pull request</strong>. Cuando se mergee, se prende tu punto.</li>
         </ol>
@@ -247,11 +260,36 @@ const REPO = 'mariaelisaaraya/Proof-of-Gratitude';
 
   <script is:inline define:vars={{ REPO }}>
     var LAUNCH = '2014-07-28';
+    var MAX_GITHUB_URL_LENGTH = 7000;
     var $ = function (id) { return document.getElementById(id); };
-    var fields = ['nombre', 'github', 'conoci', 'agradece_a', 'por_que', 'proximo_paso', 'tu_proyecto', 'commits_hoy', 'redes'];
+    var fields = ['nombre', 'github', 'agradece_a', 'por_que', 'proximo_paso', 'tu_proyecto', 'commits_hoy', 'redes'];
+    var year = $('conoci-anio');
+    var month = $('conoci-mes');
     var today = new Date();
-    var thisMonth = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
-    $('conoci').max = thisMonth;
+    var currentYear = today.getFullYear();
+    var currentMonth = today.getMonth() + 1;
+    var thisMonth = currentYear + '-' + twoDigits(currentMonth);
+    var launchYear = Number(LAUNCH.slice(0, 4));
+    var launchMonth = Number(LAUNCH.slice(5, 7));
+    var monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+    for (var y = currentYear; y >= launchYear; y--) {
+      year.add(new Option(String(y), String(y)));
+    }
+
+    function twoDigits(value) { return String(value).padStart(2, '0'); }
+    function updateMonths() {
+      var selected = month.value;
+      month.options.length = 1;
+      month.disabled = !year.value;
+      if (month.disabled) return;
+      var start = Number(year.value) === launchYear ? launchMonth : 1;
+      var end = Number(year.value) === currentYear ? currentMonth : 12;
+      for (var m = start; m <= end; m++) {
+        month.add(new Option(monthNames[m - 1], twoDigits(m)));
+      }
+      month.value = Array.from(month.options).some(function (option) { return option.value === selected; }) ? selected : '';
+    }
 
     function isUrl(v) { try { var u = new URL(v); return u.protocol === 'https:' || u.protocol === 'http:'; } catch (e) { return false; } }
     function slug(v) { return v.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, ''); }
@@ -263,12 +301,13 @@ const REPO = 'mariaelisaaraya/Proof-of-Gratitude';
       if (!v.nombre) errs.nombre = 'Falta tu nombre o apodo.';
       if (!v.github) errs.github = 'Falta tu usuario de GitHub.';
       else if (!/^[A-Za-z0-9-]+$/.test(v.github)) errs.github = 'Solo tu usuario: letras, números y guiones, sin @ ni links.';
-      var fecha = '';
-      if (!v.conoci) errs.conoci = 'Elegí el mes en que conociste Stellar.';
-      else {
-        fecha = v.conoci + '-01';
-        if (fecha < LAUNCH) fecha = LAUNCH; // julio 2014: la red nació el 28
-        if (v.conoci > thisMonth) errs.conoci = 'Tiene que ser entre julio de 2014 y hoy.';
+      var dateMonth = year.value + '-' + month.value;
+      var fecha;
+      if (!year.value || !month.value) errs.conoci = 'Elegí el año y el mes en que conociste Stellar.';
+      else if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(dateMonth) || dateMonth < LAUNCH.slice(0, 7) || dateMonth > thisMonth) {
+        errs.conoci = 'Tiene que ser entre julio de 2014 y hoy.';
+      } else {
+        fecha = dateMonth === LAUNCH.slice(0, 7) ? LAUNCH : dateMonth + '-01';
       }
       if (v.agradece_a && !/^(a|al)\s/i.test(v.agradece_a)) errs.agradece_a = 'Empezá con "a", "al" o "a la" (por ejemplo: "a Eli, que…").';
       if (v.commits_hoy && !isUrl(v.commits_hoy)) errs.commits_hoy = 'Tiene que ser un link completo (https://…).';
@@ -276,7 +315,7 @@ const REPO = 'mariaelisaaraya/Proof-of-Gratitude';
 
       var out = { nombre: v.nombre, conoci_stellar: fecha, github: v.github };
       ['agradece_a', 'por_que', 'proximo_paso', 'tu_proyecto', 'commits_hoy', 'redes'].forEach(function (k) { if (v[k]) out[k] = v[k]; });
-      return { out: out, errs: errs, file: slug(v.github || v.nombre) || 'tu-usuario' };
+      return { out: out, errs: errs, file: (slug(v.github || v.nombre) || 'tu-usuario') + '.json' };
     }
 
     var touched = {};
@@ -284,7 +323,7 @@ const REPO = 'mariaelisaaraya/Proof-of-Gratitude';
       var r = build();
       var json = JSON.stringify(r.out, null, 2) + '\n';
       $('preview').textContent = json;
-      $('filename').textContent = 'src/content/community/' + r.file + '.json';
+      $('filename').textContent = r.file;
       document.querySelectorAll('.error').forEach(function (el) {
         var k = el.getAttribute('data-for');
         el.textContent = touched[k] && r.errs[k] ? r.errs[k] : '';
@@ -295,29 +334,67 @@ const REPO = 'mariaelisaaraya/Proof-of-Gratitude';
       s.textContent = ok ? 'Listo para mandar.' : 'Completá lo que falta para poder mandarlo.';
       var open = $('open');
       open.setAttribute('aria-disabled', ok ? 'false' : 'true');
-      open.href = ok
-        ? 'https://github.com/' + REPO + '/new/main/src/content/community?filename=' + encodeURIComponent(r.file + '.json') + '&value=' + encodeURIComponent(json)
-        : '#';
-      return json;
+      $('copy').disabled = !ok;
+      var editorUrl = 'https://github.com/' + REPO + '/new/main/src/content/community?filename=' + encodeURIComponent(r.file);
+      var fullUrl = editorUrl + '&value=' + encodeURIComponent(json);
+      var longStory = fullUrl.length > MAX_GITHUB_URL_LENGTH;
+      open.href = ok ? (longStory ? editorUrl : fullUrl) : '#';
+      return { ok: ok, longStory: longStory };
     }
 
+    function update() {
+      $('clipboard-status').textContent = '';
+      render();
+    }
     fields.forEach(function (k) {
-      $(k).addEventListener('input', render);
+      $(k).addEventListener('input', update);
       $(k).addEventListener('blur', function () { touched[k] = true; render(); });
     });
-    $('open').addEventListener('click', function (e) {
-      if ($('open').getAttribute('aria-disabled') === 'true') {
-        e.preventDefault(); fields.forEach(function (k) { touched[k] = true; }); render();
+    year.addEventListener('change', function () { updateMonths(); update(); });
+    month.addEventListener('change', update);
+    month.addEventListener('blur', function () { touched.conoci = true; render(); });
+
+    function openEditor(e) {
+      if (e.type === 'auxclick' && e.button !== 1) return;
+      var result = render();
+      if (!result.ok) {
+        e.preventDefault();
+        fields.forEach(function (k) { touched[k] = true; });
+        touched.conoci = true;
+        render();
+      } else if (result.longStory) {
+        copyText($('preview'), 'Tu historia es larga: ya copiamos el JSON, pegalo en GitHub', 'Tu historia es larga. Copiá el JSON seleccionado y pegalo en GitHub.');
       }
+    }
+    $('open').addEventListener('click', openEditor);
+    $('open').addEventListener('auxclick', openEditor);
+    $('copy-name').addEventListener('click', function () {
+      copyText($('filename'), 'Nombre copiado.', 'Copiá el nombre seleccionado y pegalo en GitHub.');
     });
     $('copy').addEventListener('click', function () {
-      var json = render();
-      var btn = $('copy');
-      var done = function () { btn.textContent = 'Copiado'; setTimeout(function () { btn.textContent = 'Copiar JSON'; }, 1600); };
-      if (navigator.clipboard) navigator.clipboard.writeText(json).then(done, function () { selectPre(); });
-      else selectPre();
+      copyText($('preview'), 'JSON copiado.', 'Copiá el JSON seleccionado y pegalo en GitHub.');
     });
-    function selectPre() { var r = document.createRange(); r.selectNodeContents($('preview')); var s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+    function copyText(element, success, failure) {
+      var status = $('clipboard-status');
+      function done() { status.textContent = success; }
+      function copySelection() {
+        var range = document.createRange();
+        range.selectNodeContents(element);
+        var selection = getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        if (document.execCommand('copy')) {
+          selection.removeAllRanges();
+          done();
+        } else {
+          status.textContent = failure;
+        }
+      }
+      if (navigator.clipboard) navigator.clipboard.writeText(element.textContent).then(done, copySelection);
+      else copySelection();
+    }
+
+    updateMonths();
     render();
   </script>
 </body>
